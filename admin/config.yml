@@ -1,0 +1,51 @@
+# 后台管理系统配置
+admin:
+  port: 3001
+  title: "Sunfurns 后台管理系统"
+  theme: light
+  menu:
+    - name: "概览"
+      path: "/admin"
+      icon: "dashboard"
+    - name: "订单管理"
+      path: "/admin/orders"
+      icon: "shopping-cart"
+    - name: "产品管理"
+      path: "/admin/products"
+      icon: "package"
+    - name: "用户管理"
+      path: "/admin/users"
+      icon: "users"
+
+# Decap CMS 配置
+backend:
+  name: github
+  repo: ppddhh890507-cpu/sunfurns
+  branch: master
+  base_url: https://api.github.com
+
+media_folder: "public/images/uploads"
+public_folder: "/images/uploads"
+
+collections:
+  - name: "homepage"
+    label: "首页内容"
+    files:
+      - name: "hero"
+        label: "首页横幅"
+        file: "content/home/hero.md"
+        fields:
+          - {label: "主标题", name: "title", widget: "string"}
+          - {label: "副标题", name: "subtitle", widget: "text"}
+          - {label: "按钮文字", name: "button_text", widget: "string"}
+          - {label: "横幅背景图", name: "image", widget: "image"}
+
+  - name: "products"
+    label: "产品管理"
+    folder: "content/products"
+    create: true
+    fields:
+      - {label: "产品名称", name: "title", widget: "string"}
+      - {label: "产品描述", name: "description", widget: "text"}
+      - {label: "产品图片", name: "image", widget: "image"}
+      - {label: "产品分类", name: "category", widget: "select", options: ["Fabric Sofas", "Leather Sofas", "Modular Sofas"]}
