@@ -4,10 +4,41 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sunfurns CMS</title>
-  <!-- Decap CMS 官方脚本 -->
+  <!-- 官方稳定版 CDN -->
   <script src="https://unpkg.com/decap-cms@3.3.3/dist/decap-cms.js"></script>
 </head>
 <body>
-  <!-- 这里保留一个空的 body 标签，让 Decap CMS 能找到并渲染 -->
+  <script type="text/javascript">
+    CMS.init({
+      config: {
+        backend: {
+          name: "github",
+          repo: "ppddhh890507-cpu/sunfurns",
+          branch: "master",
+          base_url: "https://api.github.com"
+        },
+        media_folder: "public/images/uploads",
+        public_folder: "/images/uploads",
+        collections: [
+          {
+            name: "homepage",
+            label: "首页内容",
+            files: [
+              {
+                name: "hero",
+                label: "首页横幅",
+                file: "content/home/hero.md",
+                fields: [
+                  { label: "主标题", name: "title", widget: "string" },
+                  { label: "副标题", name: "subtitle", widget: "string" },
+                  { label: "背景图", name: "image", widget: "image" }
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    });
+  </script>
 </body>
 </html>
