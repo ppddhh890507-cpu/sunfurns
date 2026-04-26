@@ -1,0 +1,19 @@
+# 后台管理系统配置
+admin:
+  port: 3001
+  title: "Sunfurns 后台管理系统"
+  theme: light
+  # 菜单配置
+  menu:
+    - name: "概览"
+      path: "/admin"
+      icon: "dashboard"
+    - name: "订单管理"
+      path: "/admin/orders"
+      icon: "shopping-cart"
+    - name: "产品管理"
+      path: "/admin/products"
+      icon: "package"
+    - name: "用户管理"
+      path: "/admin/users"
+      icon: "users"
