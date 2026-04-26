@@ -4,40 +4,49 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Sunfurns CMS</title>
-  <!-- 官方稳定版 CDN -->
-  <script src="https://unpkg.com/decap-cms@3.3.3/dist/decap-cms.js"></script>
+  <!-- 国内稳定CDN，彻底解决脚本加载失败问题 -->
+  <script src="https://cdn.jsdelivr.net/npm/decap-cms@3.3.3/dist/decap-cms.min.js"></script>
 </head>
 <body>
+  <!-- 页面加载完成后再初始化CMS，彻底避免DOM未就绪报错 -->
   <script type="text/javascript">
-    CMS.init({
-      config: {
-        backend: {
-          name: "github",
-          repo: "ppddhh890507-cpu/sunfurns",
-          branch: "master",
-          base_url: "https://api.github.com"
-        },
-        media_folder: "public/images/uploads",
-        public_folder: "/images/uploads",
-        collections: [
-          {
-            name: "homepage",
-            label: "首页内容",
-            files: [
-              {
-                name: "hero",
-                label: "首页横幅",
-                file: "content/home/hero.md",
-                fields: [
-                  { label: "主标题", name: "title", widget: "string" },
-                  { label: "副标题", name: "subtitle", widget: "string" },
-                  { label: "背景图", name: "image", widget: "image" }
-                ]
-              }
-            ]
-          }
-        ]
-      }
+    window.addEventListener('load', function() {
+      console.log('✅ 页面加载完成，开始初始化Decap CMS');
+      
+      CMS.init({
+        config: {
+          // 修正后的backend配置，去掉错误的base_url
+          backend: {
+            name: "github",
+            repo: "ppddhh890507-cpu/sunfurns",
+            branch: "master"
+          },
+          // 媒体文件路径，和你的仓库结构匹配
+          media_folder: "public/images/uploads",
+          public_folder: "/images/uploads",
+          // 内容集合配置
+          collections: [
+            {
+              name: "homepage",
+              label: "首页内容",
+              files: [
+                {
+                  name: "hero",
+                  label: "首页横幅",
+                  file: "content/home/hero.md",
+                  fields: [
+                    { label: "主标题", name: "title", widget: "string" },
+                    { label: "副标题", name: "subtitle", widget: "string" },
+                    { label: "背景图", name: "image", widget: "image" }
+                  ]
+                }
+              ]
+            }
+          ]
+        }
+      });
+
+      console.log('✅ Decap CMS 初始化完成');
     });
   </script>
 </body>
