@@ -1,8 +1,8 @@
 backend:
   name: github
-  repo: ppddhh890507-cpu/sunfurns
+  repo: ppddhh890507-cpu/sunfurns  # 你的 GitHub 仓库名
   branch: master
-  base_url: https://api.github.com
+  base_url: https://api.github.com  # 必须是这个，不能改
 
 media_folder: "public/images/uploads"
 public_folder: "/images/uploads"
