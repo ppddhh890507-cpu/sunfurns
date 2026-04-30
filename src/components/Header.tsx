@@ -36,6 +36,16 @@ export default function Header() {
             </Link>
           </div>
 
+          {/* Admin Link */}
+          <div className="hidden md:block">
+            <Link
+              href="/Admin"
+              className="text-gray-500 hover:text-blue-900 text-sm"
+            >
+              Admin
+            </Link>
+          </div>
+
           {/* CTA Button */}
           <div className="hidden md:block">
             <Link
