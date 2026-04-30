@@ -1,35 +1,34 @@
 export const metadata = {
-  title: "Products - Sunfurns | Professional Sofa Manufacturer",
-  description: "Explore our wide range of sofas and furniture. Fabric sofas, leather sofas, modular sofas, and more. OEM/ODM available.",
+  title: "产品中心 - Sunfurns | 专业沙发制造商",
+  description: "浏览我们的沙发和家具系列。布艺沙发、真皮沙发、模块沙发等。提供OEM/ODM定制服务。",
 };
 
 export default function Products() {
   const products = [
     {
-      category: "Fabric Sofas",
-      items: ["Modern Fabric Sofa", "Classic Fabric Sofa", "L-Shaped Fabric Sofa", "Fabric Recliner"]
+      category: "布艺沙发",
+      items: ["现代布艺沙发", "经典布艺沙发", "L型布艺沙发", "布艺功能沙发"]
     },
     {
-      category: "Leather Sofas",
-      items: ["Italian Leather Sofa", "Modern Leather Sofa", "Executive Leather Sofa", "Leather Recliner"]
+      category: "真皮沙发",
+      items: ["意式真皮沙发", "现代真皮沙发", " executive 真皮沙发", "真皮功能沙发"]
     },
     {
-      category: "Modular Sofas",
-      items: ["Custom Modular Sofa", "Sectional Sofa", "Convertible Sofa Bed"]
+      category: "模块沙发",
+      items: ["定制模块沙发", "转角沙发", "可变沙发床"]
     },
     {
-      category: "Office Furniture",
-      items: ["Executive Chair", "Office Sofa", "Reception Sofa"]
+      category: "办公家具",
+      items: ["Executive 椅子", "办公沙发", "接待沙发"]
     }
   ];
 
   return (
     <div className="py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold text-center mb-4">Our Products</h1>
+        <h1 className="text-4xl font-bold text-center mb-4">产品中心</h1>
         <p className="text-gray-600 text-center mb-12 max-w-2xl mx-auto">
-          Professional sofa manufacturer offering a wide range of furniture. 
-          All products available with OEM/ODM customization.
+          专业沙发制造商，提供多种家具系列。所有产品均可提供OEM/ODM定制服务。
         </p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -49,12 +48,12 @@ export default function Products() {
         </div>
 
         <div className="mt-12 text-center bg-gray-50 rounded-lg p-8">
-          <h3 className="text-2xl font-semibold mb-4">Looking for Custom Products?</h3>
+          <h3 className="text-2xl font-semibold mb-4">需要定制产品吗？</h3>
           <p className="text-gray-600 mb-6">
-            We offer OEM/ODM services. Send us your specifications and we will provide a custom quote.
+            我们提供OEM/ODM服务。发送您的规格要求，我们将为您提供定制报价。
           </p>
           <a href="/contact" className="btn-primary inline-block">
-            Request Custom Quote
+            获取定制报价
           </a>
         </div>
       </div>

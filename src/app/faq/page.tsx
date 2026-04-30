@@ -1,50 +1,50 @@
 export const metadata = {
-  title: "FAQ - Sunfurns | Frequently Asked Questions",
-  description: "Find answers to common questions about our products, ordering process, shipping, and more.",
+  title: "常见问题 - Sunfurns | 常见问答",
+  description: "查找关于我们产品、订购流程、运输等常见问题的答案。",
 };
 
 export default function FAQ() {
   const faqs = [
     {
-      q: "What is your minimum order quantity?",
-      a: "Our MOQ is 10 sets per model. For custom OEM/ODM orders, the MOQ may vary depending on specifications."
+      q: "最小起订量是多少？",
+      a: "我们的起订量是每款10套。对于定制OEM/ODM订单，起订量可能因规格而异。"
     },
     {
-      q: "What payment methods do you accept?",
-      a: "We accept T/T (30% deposit, 70% balance before shipment), L/C at sight, and PayPal for small orders."
+      q: "你们接受哪些付款方式？",
+      a: "我们接受T/T（30%定金，70%尾款发货前付清）、L/C即期，以及PayPal（小额订单）。"
     },
     {
-      q: "What is the production lead time?",
-      a: "Standard orders: 15-25 days after deposit received. Custom/OEM orders: 25-35 days depending on complexity."
+      q: "生产交货期是多长？",
+      a: "标准订单：收到定金后15-25天。定制/OEM订单：25-35天，视复杂程度而定。"
     },
     {
-      q: "Do you offer OEM/ODM services?",
-      a: "Yes, we have extensive experience in OEM/ODM. We can produce according to your designs, specifications, and brand requirements."
+      q: "你们提供OEM/ODM服务吗？",
+      a: "是的，我们有丰富的OEM/ODM经验。我们可以按照您的设计、规格和品牌要求生产。"
     },
     {
-      q: "What are the shipping options?",
-      a: "We offer FOB, CIF, DDU, and DDP. We work with reliable freight forwarders to ensure safe and timely delivery."
+      q: "有哪些运输方式？",
+      a: "我们提供FOB、CIF、DDU和DDP。我们与可靠货运代理合作，确保安全及时交付。"
     },
     {
-      q: "Do you provide samples?",
-      a: "Yes, sample costs can be deducted from bulk orders. Sample lead time is 7-14 days."
+      q: "你们提供样品吗？",
+      a: "是的，样品费用可以从大货订单中扣除。样品交货期7-14天。"
     },
     {
-      q: "What warranty do you provide?",
-      a: "We provide 1-year warranty on all products. Warranty covers manufacturing defects under normal use."
+      q: "你们提供什么保修？",
+      a: "我们为所有产品提供1年保修。保修涵盖正常使用下的制造缺陷。"
     },
     {
-      q: "Can I visit your factory?",
-      a: "Absolutely! We welcome clients to visit our factory. Please contact us in advance to arrange your visit."
+      q: "我可以参观工厂吗？",
+      a: "当然可以！我们欢迎客户参观工厂。请提前联系我们安排您的访问。"
     }
   ];
 
   return (
     <div className="py-16">
       <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8">
-        <h1 className="text-4xl font-bold text-center mb-4">FAQ</h1>
+        <h1 className="text-4xl font-bold text-center mb-4">常见问题</h1>
         <p className="text-gray-600 text-center mb-12">
-          Frequently asked questions about our products and services
+          关于我们的产品和服务的常见问题
         </p>
 
         <div className="space-y-6">
@@ -57,12 +57,12 @@ export default function FAQ() {
         </div>
 
         <div className="mt-12 text-center bg-blue-50 rounded-lg p-8">
-          <h3 className="text-xl font-semibold mb-4">Still have questions?</h3>
+          <h3 className="text-xl font-semibold mb-4">还有问题吗？</h3>
           <p className="text-gray-600 mb-6">
-            Contact us directly and we will get back to you within 24 hours.
+            请直接联系我们，我们将在24小时内回复。
           </p>
           <a href="/contact" className="btn-primary inline-block">
-            Contact Us
+            联系我们
           </a>
         </div>
       </div>

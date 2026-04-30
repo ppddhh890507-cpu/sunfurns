@@ -7,9 +7,9 @@ import Footer from "@/components/Footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Sunfurns - Professional Sofa Manufacturer | B2B Furniture Supplier",
-  description: "Sunfurns is a professional sofa manufacturer offering high-quality B2B furniture solutions. Factory direct pricing, custom OEM/ODM available. Contact us for wholesale inquiries.",
-  keywords: "sofa manufacturer, furniture supplier, B2B furniture, wholesale sofa, custom furniture, OEM ODM furniture",
+  title: "Sunfurns - 专业沙发制造商 | B2B家具供应商",
+  description: "Sunfurns是一家专业沙发制造商，提供高品质B2B家具解决方案。工厂直供价，定制OEM/ODM服务。批发询价请联系我们。",
+  keywords: "沙发制造商, 家具供应商, B2B家具, 批发沙发, 定制家具, OEM ODM家具",
 };
 
 export default function RootLayout({
@@ -18,7 +18,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="zh-CN">
       <body className={inter.className}>
         <Header />
         <main className="min-h-screen">{children}</main>

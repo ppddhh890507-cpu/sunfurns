@@ -20,19 +20,19 @@ export default function Header() {
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-8">
             <Link href="/" className="text-gray-700 hover:text-blue-900 transition-colors">
-              Home
+              首页
             </Link>
             <Link href="/products" className="text-gray-700 hover:text-blue-900 transition-colors">
-              Products
+              产品中心
             </Link>
             <Link href="/about" className="text-gray-700 hover:text-blue-900 transition-colors">
-              About Us
+              关于我们
             </Link>
             <Link href="/faq" className="text-gray-700 hover:text-blue-900 transition-colors">
-              FAQ
+              常见问题
             </Link>
             <Link href="/contact" className="text-gray-700 hover:text-blue-900 transition-colors">
-              Contact
+              联系我们
             </Link>
           </div>
 
@@ -42,7 +42,7 @@ export default function Header() {
               href="/Admin"
               className="text-gray-500 hover:text-blue-900 text-sm"
             >
-              Admin
+              管理后台
             </Link>
           </div>
 
@@ -52,7 +52,7 @@ export default function Header() {
               href="/contact"
               className="bg-blue-900 text-white px-4 py-2 rounded-lg hover:bg-blue-800 transition-colors"
             >
-              Get Quote
+              获取报价
             </Link>
           </div>
 
@@ -77,12 +77,12 @@ export default function Header() {
         {isMenuOpen && (
           <div className="md:hidden py-4 border-t">
             <div className="flex flex-col space-y-4">
-              <Link href="/" className="text-gray-700 hover:text-blue-900">Home</Link>
-              <Link href="/products" className="text-gray-700 hover:text-blue-900">Products</Link>
-              <Link href="/about" className="text-gray-700 hover:text-blue-900">About Us</Link>
-              <Link href="/faq" className="text-gray-700 hover:text-blue-900">FAQ</Link>
-              <Link href="/contact" className="text-gray-700 hover:text-blue-900">Contact</Link>
-              <Link href="/contact" className="bg-blue-900 text-white px-4 py-2 rounded-lg text-center">Get Quote</Link>
+              <Link href="/" className="text-gray-700 hover:text-blue-900">首页</Link>
+              <Link href="/products" className="text-gray-700 hover:text-blue-900">产品中心</Link>
+              <Link href="/about" className="text-gray-700 hover:text-blue-900">关于我们</Link>
+              <Link href="/faq" className="text-gray-700 hover:text-blue-900">常见问题</Link>
+              <Link href="/contact" className="text-gray-700 hover:text-blue-900">联系我们</Link>
+              <Link href="/contact" className="bg-blue-900 text-white px-4 py-2 rounded-lg text-center">获取报价</Link>
             </div>
           </div>
         )}
