@@ -7,16 +7,64 @@ export default function VisualEditorPage() {
   const [pages, setPages] = useState<{ id: string; slug: string; title: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
+  const [editorReady, setEditorReady] = useState(false);
   const editorRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+  const initializedRef = useRef(false);
 
+  // Load pages list
   useEffect(() => {
     fetchPages();
-    loadGrapesJS();
+  }, []);
+
+  // Load GrapesJS only once
+  useEffect(() => {
+    if (initializedRef.current || !containerRef.current) return;
+    initializedRef.current = true;
+
+    let editor: any = null;
+
+    const initEditor = async () => {
+      const grapesjs = (await import('grapesjs')).default;
+      const gjsPreset = (await import('grapesjs-preset-webpage')).default;
+
+      if (!containerRef.current) return;
+
+      editor = grapesjs.init({
+        container: containerRef.current,
+        height: 'calc(100vh - 140px)',
+        storageManager: false,
+        fromElement: false,
+        plugins: [gjsPreset],
+        pluginsOpts: {
+          'gjs-preset-webpage': {}
+        },
+        assetManager: {
+          assets: []
+        },
+        canvas: {
+          styles: [],
+          scripts: []
+        },
+        noticeOnUnload: false
+      });
+
+      editorRef.current = editor;
+      setEditorReady(true);
+    };
+
+    initEditor().catch(console.error);
+
     return () => {
-      if (editorRef.current) {
-        editorRef.current.destroy();
+      if (editor && !editor.destroyed) {
+        try {
+          editor.destroy();
+        } catch (e) {
+          // Ignore cleanup errors
+        }
       }
+      editorRef.current = null;
+      initializedRef.current = false;
     };
   }, []);
 
@@ -30,45 +78,40 @@ export default function VisualEditorPage() {
     }
   };
 
-  const loadGrapesJS = async () => {
-    const grapesjs = (await import('grapesjs')).default;
-    const gjsPreset = (await import('grapesjs-preset-webpage')).default;
-    
-    if (containerRef.current && !editorRef.current) {
-      editorRef.current = grapesjs.init({
-        container: '#gjs',
-        height: 'calc(100vh - 120px)',
-        storageManager: false,
-        plugins: [gjsPreset],
-        pluginsOpts: {
-          'gjs-preset-webpage': {}
-        },
-        canvas: {
-          styles: ['/globals.css'],
-          scripts: ['/main.js']
-        }
-      });
-
-      editorRef.current.on('storage:store', async (data: any) => {
-        console.log('自动保存:', data);
-      });
-    }
-  };
-
   const loadPageContent = async () => {
     if (!selectedPage || !editorRef.current) return;
-    
+
     setLoading(true);
     try {
       const res = await fetch(`/api/pages/${selectedPage}`);
       const data = await res.json();
-      if (data.success && data.data.gjs_html) {
-        editorRef.current.setComponents(data.data.gjs_html);
-        if (data.data.gjs_css) {
-          editorRef.current.setStyle(data.data.gjs_css);
+
+      if (data.success) {
+        const editor = editorRef.current;
+        const pageData = data.data;
+
+        if (pageData.gjs_html && pageData.gjs_html.trim()) {
+          try {
+            editor.setComponents(pageData.gjs_html);
+          } catch (e) {
+            console.error('Failed to set components:', e);
+          }
+
+          if (pageData.gjs_css && pageData.gjs_css.trim()) {
+            try {
+              editor.setStyle(pageData.gjs_css);
+            } catch (e) {
+              console.error('Failed to set styles:', e);
+            }
+          }
+        } else {
+          editor.setComponents(`
+            <div style="text-align: center; padding: 60px 20px;">
+              <h1 style="font-size: 32px; color: #333; margin-bottom: 20px;">编辑此页面</h1>
+              <p style="color: #666; font-size: 16px;">从左侧面板拖拽区块来添加内容</p>
+            </div>
+          `);
         }
-      } else {
-        editorRef.current.setComponents('<div class="text-center py-20"><h1 class="text-4xl">编辑此页面</h1><p>使用左侧面板拖拽区块来添加内容</p></div>');
       }
     } catch (error) {
       console.error('加载页面失败:', error);
@@ -78,20 +121,23 @@ export default function VisualEditorPage() {
   };
 
   const handlePageChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    setSelectedPage(e.target.value);
-    loadPageContent();
+    const pageId = e.target.value;
+    setSelectedPage(pageId);
+    if (pageId) {
+      loadPageContent();
+    }
   };
 
   const handleSave = async () => {
     if (!selectedPage || !editorRef.current) return;
-    
+
     setSaving(true);
     try {
-      const components = editorRef.current.getComponents();
-      const css = editorRef.current.getCss();
-      const html = editorRef.current.getHtml();
-      
-      await fetch(`/api/pages/${selectedPage}`, {
+      const editor = editorRef.current;
+      const html = editor.getHtml();
+      const css = editor.getCss();
+
+      const res = await fetch(`/api/pages/${selectedPage}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -99,7 +145,13 @@ export default function VisualEditorPage() {
           gjsCss: css
         })
       });
-      alert('页面保存成功！');
+
+      const result = await res.json();
+      if (result.success) {
+        alert('页面保存成功！');
+      } else {
+        alert('保存失败: ' + result.error);
+      }
     } catch (error) {
       console.error('保存失败:', error);
       alert('保存页面失败');
@@ -109,7 +161,7 @@ export default function VisualEditorPage() {
   };
 
   return (
-    <div>
+    <div className="p-6">
       <div className="flex justify-between items-center mb-6">
         <h1 className="text-3xl font-bold">可视化编辑器</h1>
         <div className="flex gap-4 items-center">
@@ -141,12 +193,21 @@ export default function VisualEditorPage() {
         </div>
       )}
 
-      <div className="bg-white rounded-xl shadow overflow-hidden">
-        <div id="gjs" ref={containerRef} className="min-h-[600px]" />
-      </div>
+      {!editorReady && (
+        <div className="bg-gray-100 rounded-lg p-8 text-center">
+          <p className="text-gray-600">编辑器加载中...</p>
+        </div>
+      )}
+
+      <div
+        id="gjs"
+        ref={containerRef}
+        className={`bg-white rounded-xl shadow overflow-hidden ${editorReady ? '' : 'hidden'}`}
+        style={{ minHeight: '600px' }}
+      />
 
       <div className="mt-4 text-gray-500 text-sm">
-        <p><strong>提示：</strong>使用左侧面板拖拽区块。点击元素进行编辑。编辑完成后点击"保存页面"将内容保存到数据库。</p>
+        <p><strong>提示：</strong>选择左侧页面后，从顶部面板拖拽区块到画布中。点击元素进行属性编辑。完成编辑后点击"保存页面"将内容保存到数据库。</p>
       </div>
     </div>
   );
