@@ -2,15 +2,13 @@
 
 import { useState, useEffect, useRef } from 'react';
 
-// Import GrapesJS CSS
-import 'grapesjs/dist/css/grapes.min.css';
-
 export default function VisualEditorPage() {
   const [selectedPage, setSelectedPage] = useState('');
   const [pages, setPages] = useState<{ id: string; slug: string; title: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [editorReady, setEditorReady] = useState(false);
   const editorRef = useRef<any>(null);
   const containerRef = useRef<HTMLDivElement>(null);
   const initializedRef = useRef(false);
@@ -20,103 +18,126 @@ export default function VisualEditorPage() {
   }, []);
 
   useEffect(() => {
-    if (initializedRef.current) return;
+    if (initializedRef.current || !containerRef.current) return;
     initializedRef.current = true;
 
-    let editor: any = null;
-
-    const init = async () => {
+    // Load GrapesJS from CDN to avoid module resolution issues
+    const loadEditor = async () => {
       try {
+        // Load CSS
+        const link = document.createElement('link');
+        link.rel = 'stylesheet';
+        link.href = 'https://unpkg.com/grapesjs@0.22.16/dist/css/grapes.min.css';
+        document.head.appendChild(link);
+
+        // Load JS - can't use unpkg for esm, so use dynamic import from npm
         const grapesjs = (await import('grapesjs')).default;
         if (!containerRef.current) return;
 
-        editor = grapesjs.init({
+        const editor = grapesjs.init({
           container: containerRef.current,
-          height: 'calc(100vh - 120px)',
+          height: 'calc(100vh - 130px)',
+          width: 'auto',
           storageManager: false,
           fromElement: false,
           noticeOnUnload: false,
           avoidInlineStyle: true,
-          blockManager: {
-            appendTo: '#blocks'
-          },
+          canvas: {},
+          selectorManager: { custom: true },
           styleManager: {
-            clearProperties: true,
-            sectors: [{
-              name: '样式',
-              open: false,
-              buildProps: ['width', 'height', 'max-width', 'min-height', 'padding', 'margin'],
-            }]
+            clearProperties: false,
+            sectors: [
+              { name: '尺寸', open: false, buildProps: ['width', 'height', 'max-width', 'min-height', 'padding', 'margin', 'display'] },
+              { name: '背景', open: false, buildProps: ['background-color', 'background-image'] },
+              { name: '文本', open: false, buildProps: ['font-size', 'font-weight', 'color', 'text-align', 'line-height'] },
+              { name: '边框', open: false, buildProps: ['border-width', 'border-color', 'border-radius'] },
+            ]
           },
-          // Don't use external preset, use built-in commands only
-          canvas: {
-            styles: ['https://cdn.jsdelivr.net/npm/grapesjs/dist/css/grapes.min.css']
+          blockManager: {
+            appendTo: '',
+            blocks: []
           }
         });
 
-        // Add some basic blocks
-        editor.Blocks.add('text', {
+        // Add custom blocks
+        editor.Blocks.add('text-block', {
           label: '文本',
-          content: '<div style="padding:10px;">编辑这段文本</div>',
-          category: '基础组件',
+          content: '<div style="padding:15px;font-size:15px;">编辑这段文本内容</div>',
+          category: '内容',
+        });
+
+        editor.Blocks.add('heading1', {
+          label: '大标题',
+          content: '<h1 style="padding:15px;font-size:32px;font-weight:bold;margin:0;">大标题</h1>',
+          category: '内容',
+        });
+
+        editor.Blocks.add('heading2', {
+          label: '中标题',
+          content: '<h2 style="padding:15px;font-size:24px;font-weight:bold;margin:0;">中标题</h2>',
+          category: '内容',
         });
 
         editor.Blocks.add('image', {
           label: '图片',
-          content: '<div style="padding:20px;text-align:center;background:#f5f5f5;border:1px dashed #ccc;border-radius:4px;color:#999;">📷 点击添加图片</div>',
-          category: '基础组件',
-        });
-
-        editor.Blocks.add('heading', {
-          label: '标题',
-          content: '<h2 style="padding:10px;font-size:24px;font-weight:bold;">标题内容</h2>',
-          category: '基础组件',
+          content: '<div style="padding:20px;text-align:center;"><img src="https://placehold.co/400x300/eee/999?text=图片" alt="图片" style="max-width:100%;border-radius:4px;" /></div>',
+          category: '内容',
         });
 
         editor.Blocks.add('button', {
           label: '按钮',
-          content: '<div style="padding:10px;"><a href="#" style="background:#1e3a5f;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;display:inline-block;">点击按钮</a></div>',
-          category: '基础组件',
+          content: '<div style="padding:15px;"><a href="#" style="display:inline-block;padding:10px 30px;background:#1e3a5f;color:white;text-decoration:none;border-radius:6px;font-size:15px;">了解更多</a></div>',
+          category: '内容',
         });
 
         editor.Blocks.add('section', {
-          label: '区块',
-          content: '<div style="padding:40px 20px;background:#f9f9f9;min-height:100px;"><div style="max-width:1200px;margin:0 auto;">区块内容</div></div>',
-          category: '结构',
+          label: '通栏区块',
+          content: '<section style="padding:60px 20px;"><div style="max-width:1200px;margin:0 auto;">在这里编辑区块内容</div></section>',
+          category: '布局',
         });
 
-        editor.Blocks.add('columns-2', {
-          label: '两列',
-          content: '<div style="display:flex;gap:20px;padding:20px;"><div style="flex:1;min-height:60px;background:#f0f0f0;padding:10px;border-radius:4px;">左列</div><div style="flex:1;min-height:60px;background:#f0f0f0;padding:10px;border-radius:4px;">右列</div></div>',
-          category: '结构',
+        editor.Blocks.add('two-cols', {
+          label: '两列布局',
+          content: '<div style="display:flex;gap:24px;padding:20px;"><div style="flex:1;min-height:80px;padding:15px;background:#f5f5f5;border-radius:4px;">左列</div><div style="flex:1;min-height:80px;padding:15px;background:#f0f0f0;border-radius:4px;">右列</div></div>',
+          category: '布局',
         });
 
-        editor.Blocks.add('columns-3', {
-          label: '三列',
-          content: '<div style="display:flex;gap:16px;padding:20px;"><div style="flex:1;min-height:60px;background:#f0f0f0;padding:10px;border-radius:4px;">列1</div><div style="flex:1;min-height:60px;background:#f0f0f0;padding:10px;border-radius:4px;">列2</div><div style="flex:1;min-height:60px;background:#f0f0f0;padding:10px;border-radius:4px;">列3</div></div>',
-          category: '结构',
+        editor.Blocks.add('three-cols', {
+          label: '三列布局',
+          content: '<div style="display:flex;gap:20px;padding:20px;"><div style="flex:1;min-height:80px;padding:10px;background:#f5f5f5;border-radius:4px;">列1</div><div style="flex:1;min-height:80px;padding:10px;background:#f0f0f0;border-radius:4px;">列2</div><div style="flex:1;min-height:80px;padding:10px;background:#ebebeb;border-radius:4px;">列3</div></div>',
+          category: '布局',
         });
 
-        editor.on('load', () => {
-          const headerContainer = document.getElementById('editor-header');
-          if (headerContainer) {
-            headerContainer.style.display = 'flex';
-          }
+        editor.Blocks.add('video', {
+          label: '视频',
+          content: '<div style="padding:20px;text-align:center;"><iframe src="https://www.youtube.com/embed/placeholder" frameborder="0" style="max-width:100%;width:560px;height:315px;border-radius:4px;"></iframe></div>',
+          category: '内容',
         });
+
+        editor.Blocks.add('divider', {
+          label: '分割线',
+          content: '<hr style="border:none;border-top:1px solid #ddd;margin:20px 0;" />',
+          category: '内容',
+        });
+
+        // Listen for selection / edit events
+        editor.on('component:selected', () => {});
+        editor.on('block:drag:stop', () => {});
 
         editorRef.current = editor;
+        setEditorReady(true);
         setError(null);
       } catch (err) {
-        console.error('Editor init failed:', err);
+        console.error('Editor init error:', err);
         setError('编辑器加载失败: ' + String(err));
       }
     };
 
-    init();
+    loadEditor();
 
     return () => {
-      if (editor) {
-        try { editor.destroy(); } catch {}
+      if (editorRef.current && !editorRef.current.destroyed) {
+        try { editorRef.current.destroy(); } catch {}
       }
       editorRef.current = null;
       initializedRef.current = false;
@@ -128,7 +149,6 @@ export default function VisualEditorPage() {
       const res = await fetch('/api/pages');
       const data = await res.json();
       if (data.success) setPages(data.data);
-      else setError('获取页面列表失败: ' + data.error);
     } catch (err) {
       setError('获取页面列表失败: ' + String(err));
     }
@@ -146,17 +166,20 @@ export default function VisualEditorPage() {
       const editor = editorRef.current;
       const pageData = data.data;
 
-      if (pageData.gjs_html && pageData.gjs_html.trim()) {
+      // Clear and set content
+      if (pageData.gjs_html && pageData.gjs_html.trim() && pageData.gjs_html !== '<body></body>') {
         editor.setComponents(pageData.gjs_html);
         if (pageData.gjs_css) editor.setStyle(pageData.gjs_css);
       } else if (pageData.content && pageData.content.trim()) {
         editor.setComponents(pageData.content);
       } else {
+        // Empty page - show editable placeholder
         editor.setComponents(
-          '<div style="text-align:center;padding:80px 20px;font-family:sans-serif">' +
-          '<h1 style="font-size:32px;color:#333;margin-bottom:16px">编辑此页面</h1>' +
-          '<p style="color:#999;font-size:16px">从左侧面板拖拽组件到此处</p></div>'
+          '<div style="text-align:center;padding:100px 20px;font-family:Arial,sans-serif">' +
+          '<h1 style="font-size:36px;color:#333;margin:0 0 12px">这是一个空白页面</h1>' +
+          '<p style="color:#999;font-size:16px;margin:0">点击左侧「块」面板拖拽组件开始编辑</p></div>'
         );
+        editor.setStyle('');
       }
     } catch (err) {
       setError('加载页面失败: ' + String(err));
@@ -181,14 +204,13 @@ export default function VisualEditorPage() {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          titleEn: pages.find(p => p.id === selectedPage)?.title || '',
           gjsHtml: editor.getHtml(),
           gjsCss: editor.getCss()
         })
       });
       const result = await res.json();
       if (result.success) alert('页面保存成功！');
-      else setError('保存失败: ' + result.error);
+      else throw new Error(result.error);
     } catch (err) {
       setError('保存失败: ' + String(err));
     } finally {
@@ -196,51 +218,49 @@ export default function VisualEditorPage() {
     }
   };
 
+  if (!editorReady) {
+    return (
+      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa' }}>
+        <div style={{ textAlign: 'center' }}>
+          <div style={{
+            width: 40, height: 40, border: '3px solid #e5e7eb', borderTopColor: '#2563eb',
+            borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 16px'
+          }} />
+          <p style={{ color: '#6b7280', margin: 0 }}>编辑器加载中...</p>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', fontFamily: 'Arial, sans-serif' }}>
       {/* Top bar */}
-      <div
-        id="editor-header"
-        style={{
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          padding: '8px 16px',
-          background: '#1a1a2e',
-          color: 'white',
-          flexShrink: 0
-        }}
-      >
-        <h1 style={{ fontSize: 16, fontWeight: 'bold', margin: 0 }}>Sunfurns 可视化编辑器</h1>
+      <div style={{
+        display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+        padding: '8px 16px', background: '#1e293b', color: 'white', flexShrink: 0, zIndex: 10
+      }}>
+        <h1 style={{ fontSize: 15, fontWeight: 600, margin: 0 }}>Sunfurns 可视化编辑器</h1>
         <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <select
             value={selectedPage}
             onChange={handlePageChange}
             style={{
-              padding: '4px 8px',
-              borderRadius: 4,
-              border: '1px solid #ccc',
-              color: '#333',
-              minWidth: 160,
-              fontSize: 13,
+              padding: '5px 10px', borderRadius: 4, border: '1px solid #475569',
+              background: '#334155', color: 'white', minWidth: 160, fontSize: 13
             }}
           >
             <option value="">选择页面...</option>
             {pages.map(p => (
-              <option key={p.id} value={p.id}>{p.title} ({p.slug})</option>
+              <option key={p.id} value={p.id}>{p.title || p.slug} ({p.slug})</option>
             ))}
           </select>
           <button
             onClick={handleSave}
             disabled={!selectedPage || saving}
             style={{
-              padding: '5px 16px',
-              borderRadius: 4,
-              border: 'none',
-              background: selectedPage && !saving ? '#2563eb' : '#6b7280',
-              color: 'white',
-              fontSize: 13,
-              cursor: selectedPage && !saving ? 'pointer' : 'not-allowed',
+              padding: '5px 16px', borderRadius: 4, border: 'none',
+              background: selectedPage && !saving ? '#2563eb' : '#475569',
+              color: 'white', fontSize: 13, cursor: selectedPage && !saving ? 'pointer' : 'not-allowed'
             }}
           >
             {saving ? '保存中...' : '保存页面'}
@@ -248,32 +268,32 @@ export default function VisualEditorPage() {
         </div>
       </div>
 
-      {/* Messages */}
+      {/* Error/Loading bar */}
       {error && (
-        <div style={{ background: '#fee2e2', color: '#991b1b', padding: '8px 16px', fontSize: 13 }}>
-          {error}
+        <div style={{ background: '#fee2e2', color: '#991b1b', padding: '6px 16px', fontSize: 13 }}>
+          ⚠️ {error}
         </div>
       )}
       {loading && (
-        <div style={{ background: '#dbeafe', color: '#1e40af', padding: '8px 16px', fontSize: 13 }}>
+        <div style={{ background: '#dbeafe', color: '#1e40af', padding: '6px 16px', fontSize: 13 }}>
           加载中...
         </div>
       )}
 
-      {/* GrapesJS container */}
+      {/* Editor container */}
       <div ref={containerRef} style={{ flex: 1 }} />
 
-      {/* Footer */}
+      {/* Footer hint */}
       <div style={{
-        background: '#f3f4f6',
-        color: '#6b7280',
-        fontSize: 12,
-        padding: '4px 16px',
-        flexShrink: 0,
-        borderTop: '1px solid #e5e7eb'
+        background: '#f1f5f9', color: '#64748b', fontSize: 11,
+        padding: '4px 16px', flexShrink: 0, borderTop: '1px solid #e2e8f0'
       }}>
-        拖拽左侧面板中的组件到画布进行编辑，完成后点击"保存页面"
+        ① 上方选择页面 → ② 从左侧"块"面板拖拽组件到画布 → ③ 点击画布元素编辑属性 → ④ 点击"保存页面"
       </div>
+
+      <style jsx global>{`
+        @keyframes spin { to { transform: rotate(360deg); } }
+      `}</style>
     </div>
   );
 }
