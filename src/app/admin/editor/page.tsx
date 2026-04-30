@@ -2,6 +2,9 @@
 
 import { useState, useEffect, useRef } from 'react';
 
+// Import GrapesJS CSS
+import 'grapesjs/dist/css/grapes.min.css';
+
 export default function VisualEditorPage() {
   const [selectedPage, setSelectedPage] = useState('');
   const [pages, setPages] = useState<{ id: string; slug: string; title: string }[]>([]);
@@ -29,15 +32,75 @@ export default function VisualEditorPage() {
 
         editor = grapesjs.init({
           container: containerRef.current,
-          height: 'calc(100vh - 160px)',
+          height: 'calc(100vh - 120px)',
           storageManager: false,
           fromElement: false,
-          // Don't use gjs-preset-webpage - it causes issues
           noticeOnUnload: false,
           avoidInlineStyle: true,
-          canvas: {},
+          blockManager: {
+            appendTo: '#blocks'
+          },
           styleManager: {
-            sectors: []
+            clearProperties: true,
+            sectors: [{
+              name: '样式',
+              open: false,
+              buildProps: ['width', 'height', 'max-width', 'min-height', 'padding', 'margin'],
+            }]
+          },
+          // Don't use external preset, use built-in commands only
+          canvas: {
+            styles: ['https://cdn.jsdelivr.net/npm/grapesjs/dist/css/grapes.min.css']
+          }
+        });
+
+        // Add some basic blocks
+        editor.Blocks.add('text', {
+          label: '文本',
+          content: '<div style="padding:10px;">编辑这段文本</div>',
+          category: '基础组件',
+        });
+
+        editor.Blocks.add('image', {
+          label: '图片',
+          content: '<div style="padding:20px;text-align:center;background:#f5f5f5;border:1px dashed #ccc;border-radius:4px;color:#999;">📷 点击添加图片</div>',
+          category: '基础组件',
+        });
+
+        editor.Blocks.add('heading', {
+          label: '标题',
+          content: '<h2 style="padding:10px;font-size:24px;font-weight:bold;">标题内容</h2>',
+          category: '基础组件',
+        });
+
+        editor.Blocks.add('button', {
+          label: '按钮',
+          content: '<div style="padding:10px;"><a href="#" style="background:#1e3a5f;color:white;padding:10px 24px;border-radius:6px;text-decoration:none;display:inline-block;">点击按钮</a></div>',
+          category: '基础组件',
+        });
+
+        editor.Blocks.add('section', {
+          label: '区块',
+          content: '<div style="padding:40px 20px;background:#f9f9f9;min-height:100px;"><div style="max-width:1200px;margin:0 auto;">区块内容</div></div>',
+          category: '结构',
+        });
+
+        editor.Blocks.add('columns-2', {
+          label: '两列',
+          content: '<div style="display:flex;gap:20px;padding:20px;"><div style="flex:1;min-height:60px;background:#f0f0f0;padding:10px;border-radius:4px;">左列</div><div style="flex:1;min-height:60px;background:#f0f0f0;padding:10px;border-radius:4px;">右列</div></div>',
+          category: '结构',
+        });
+
+        editor.Blocks.add('columns-3', {
+          label: '三列',
+          content: '<div style="display:flex;gap:16px;padding:20px;"><div style="flex:1;min-height:60px;background:#f0f0f0;padding:10px;border-radius:4px;">列1</div><div style="flex:1;min-height:60px;background:#f0f0f0;padding:10px;border-radius:4px;">列2</div><div style="flex:1;min-height:60px;background:#f0f0f0;padding:10px;border-radius:4px;">列3</div></div>',
+          category: '结构',
+        });
+
+        editor.on('load', () => {
+          const headerContainer = document.getElementById('editor-header');
+          if (headerContainer) {
+            headerContainer.style.display = 'flex';
           }
         });
 
@@ -90,9 +153,9 @@ export default function VisualEditorPage() {
         editor.setComponents(pageData.content);
       } else {
         editor.setComponents(
-          '<div style="text-align:center;padding:40px 20px;font-family:sans-serif">' +
-          '<h1 style="font-size:28px;color:#333;margin-bottom:16px">编辑此页面</h1>' +
-          '<p style="color:#999;font-size:14px">在此添加内容</p></div>'
+          '<div style="text-align:center;padding:80px 20px;font-family:sans-serif">' +
+          '<h1 style="font-size:32px;color:#333;margin-bottom:16px">编辑此页面</h1>' +
+          '<p style="color:#999;font-size:16px">从左侧面板拖拽组件到此处</p></div>'
         );
       }
     } catch (err) {
@@ -134,15 +197,33 @@ export default function VisualEditorPage() {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
       {/* Top bar */}
-      <div className="flex items-center justify-between px-6 py-3 bg-gray-900 text-white shrink-0">
-        <h1 className="text-lg font-bold">可视化编辑器</h1>
-        <div className="flex items-center gap-3">
+      <div
+        id="editor-header"
+        style={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          padding: '8px 16px',
+          background: '#1a1a2e',
+          color: 'white',
+          flexShrink: 0
+        }}
+      >
+        <h1 style={{ fontSize: 16, fontWeight: 'bold', margin: 0 }}>Sunfurns 可视化编辑器</h1>
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
           <select
             value={selectedPage}
             onChange={handlePageChange}
-            className="text-black px-3 py-1.5 rounded border min-w-[180px] text-sm"
+            style={{
+              padding: '4px 8px',
+              borderRadius: 4,
+              border: '1px solid #ccc',
+              color: '#333',
+              minWidth: 160,
+              fontSize: 13,
+            }}
           >
             <option value="">选择页面...</option>
             {pages.map(p => (
@@ -152,29 +233,46 @@ export default function VisualEditorPage() {
           <button
             onClick={handleSave}
             disabled={!selectedPage || saving}
-            className="bg-blue-600 text-white px-4 py-1.5 rounded text-sm hover:bg-blue-700 disabled:opacity-50"
+            style={{
+              padding: '5px 16px',
+              borderRadius: 4,
+              border: 'none',
+              background: selectedPage && !saving ? '#2563eb' : '#6b7280',
+              color: 'white',
+              fontSize: 13,
+              cursor: selectedPage && !saving ? 'pointer' : 'not-allowed',
+            }}
           >
-            {saving ? '保存中...' : '保存'}
+            {saving ? '保存中...' : '保存页面'}
           </button>
         </div>
       </div>
 
-      {/* Error */}
+      {/* Messages */}
       {error && (
-        <div className="bg-red-100 text-red-700 px-6 py-2 text-sm">{error}</div>
+        <div style={{ background: '#fee2e2', color: '#991b1b', padding: '8px 16px', fontSize: 13 }}>
+          {error}
+        </div>
       )}
-
-      {/* Loading */}
       {loading && (
-        <div className="bg-blue-100 text-blue-700 px-6 py-2 text-sm">加载中...</div>
+        <div style={{ background: '#dbeafe', color: '#1e40af', padding: '8px 16px', fontSize: 13 }}>
+          加载中...
+        </div>
       )}
 
-      {/* Editor container */}
-      <div ref={containerRef} className="flex-1" />
+      {/* GrapesJS container */}
+      <div ref={containerRef} style={{ flex: 1 }} />
 
-      {/* Footer hint */}
-      <div className="bg-gray-100 text-gray-500 text-xs px-6 py-1.5 shrink-0">
-        拖拽左侧组件到画布，选择元素编辑属性，完成后点击"保存"
+      {/* Footer */}
+      <div style={{
+        background: '#f3f4f6',
+        color: '#6b7280',
+        fontSize: 12,
+        padding: '4px 16px',
+        flexShrink: 0,
+        borderTop: '1px solid #e5e7eb'
+      }}>
+        拖拽左侧面板中的组件到画布进行编辑，完成后点击"保存页面"
       </div>
     </div>
   );
