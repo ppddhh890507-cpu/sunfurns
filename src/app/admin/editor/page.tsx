@@ -8,7 +8,7 @@ export default function VisualEditorPage() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [editorLoaded, setEditorLoaded] = useState(false);
+  const [debug, setDebug] = useState<string>('');
   const containerRef = useRef<HTMLDivElement>(null);
   const initializedRef = useRef(false);
   const editorRef = useRef<any>(null);
@@ -22,25 +22,37 @@ export default function VisualEditorPage() {
     if (initializedRef.current) return;
     initializedRef.current = true;
 
+    setDebug('1. 开始加载编辑器...');
+
     // Load CSS
     const link = document.createElement('link');
     link.rel = 'stylesheet';
     link.href = '/grapes.min.css';
+    link.onload = () => setDebug(d => d + '\n2. CSS 加载成功');
+    link.onerror = () => setDebug(d => d + '\n2. CSS 加载失败!');
     document.head.appendChild(link);
 
     // Load JS
     const script = document.createElement('script');
     script.src = '/grapes.min.js';
     script.onload = () => {
-      setEditorLoaded(true);
+      setDebug(d => d + '\n3. JS 加载成功, 准备初始化...');
+
+      const g = (window as any).grapesjs;
+      if (!g) {
+        setDebug(d => d + '\n3b. grapesjs 对象不存在!');
+        setError('编辑器核心库加载异常');
+        return;
+      }
+
+      setDebug(d => d + '\n4. 找到 grapesjs, 注册插件...');
 
       // Register blocks plugin
-      const g = (window as any).grapesjs;
       g.plugins.add('gjs-local-blocks', (editor: any) => {
         editor.Blocks.add('text', { label: '文本', content: '<div style="padding:15px;font-size:15px;">编辑这段文本</div>', category: '内容' });
-        editor.Blocks.add('heading1', { label: '大标题', content: '<h1 style="padding:15px;font-size:32px;font-weight:bold;margin:0;">大标题</h1>', category: '内容' });
-        editor.Blocks.add('heading2', { label: '中标题', content: '<h2 style="padding:15px;font-size:24px;font-weight:bold;margin:0;">中标题</h2>', category: '内容' });
-        editor.Blocks.add('image', { label: '图片', content: '<div style="padding:20px;text-align:center;"><img src="https://placehold.co/560x400/eee/999?text=添加图片" alt="" style="max-width:100%;border-radius:4px;" /></div>', category: '内容' });
+        editor.Blocks.add('heading1', { label: '大标题', content: '<h1 style="padding:15px;font-size:32px;font-weight:bold;">大标题</h1>', category: '内容' });
+        editor.Blocks.add('heading2', { label: '中标题', content: '<h2 style="padding:15px;font-size:24px;font-weight:bold;">中标题</h2>', category: '内容' });
+        editor.Blocks.add('image', { label: '图片', content: '<div style="padding:20px;text-align:center;"><img src="https://placehold.co/560x400/eee/999?text=添加图片" style="max-width:100%;border-radius:4px;" /></div>', category: '内容' });
         editor.Blocks.add('button', { label: '按钮', content: '<div style="padding:15px;"><a href="#" style="display:inline-block;padding:10px 30px;background:#1e3a5f;color:white;text-decoration:none;border-radius:6px;">了解更多</a></div>', category: '内容' });
         editor.Blocks.add('section', { label: '通栏区块', content: '<section style="padding:60px 20px;background:#f9f9f9;"><div style="max-width:1200px;margin:0 auto;">区块内容</div></section>', category: '布局' });
         editor.Blocks.add('two-cols', { label: '两列', content: '<div style="display:flex;gap:24px;padding:20px;"><div style="flex:1;padding:20px;background:#f5f5f5;">左列</div><div style="flex:1;padding:20px;background:#f0f0f0;">右列</div></div>', category: '布局' });
@@ -49,47 +61,53 @@ export default function VisualEditorPage() {
         editor.Blocks.add('spacer', { label: '空白间距', content: '<div style="height:40px;"></div>', category: '布局' });
       });
 
-      // Initialize editor
-      initEditor(g);
-    };
-    script.onerror = () => {
-      setError('编辑器核心库加载失败');
-    };
-    document.head.appendChild(script);
+      setDebug(d => d + '\n5. 插件注册完成, 检查容器...');
 
-    return () => {
-      if (editorRef.current && !editorRef.current.destroyed) {
-        try { editorRef.current.destroy(); } catch {}
+      // Check container
+      const container = containerRef.current;
+      if (!container) {
+        setDebug(d => d + '\n5b. 容器不存在!');
+        setError('编辑器容器未找到 (可能是页面加载顺序问题)');
+        return;
+      }
+
+      setDebug(d => d + '\n6. 容器存在, 初始化编辑器...');
+
+      try {
+        const editor = g.init({
+          container: container,
+          height: 'calc(100vh - 110px)',
+          storageManager: false,
+          fromElement: false,
+          noticeOnUnload: false,
+          plugins: ['gjs-local-blocks'],
+          pluginsOpts: { 'gjs-local-blocks': {} },
+          styleManager: {
+            sectors: [
+              { name: '尺寸', open: false, buildProps: ['width', 'height', 'max-width', 'padding', 'margin', 'display'] },
+              { name: '背景', open: false, buildProps: ['background-color', 'background-image'] },
+              { name: '文本', open: false, buildProps: ['font-size', 'font-weight', 'color', 'text-align', 'line-height'] },
+              { name: '边框', open: false, buildProps: ['border-width', 'border-color', 'border-radius'] },
+            ]
+          }
+        });
+
+        editorRef.current = editor;
+        setDebug(d => d + '\n7. 编辑器初始化成功!');
+        setError(null);
+      } catch (err: any) {
+        setDebug(d => d + '\n7b. 初始化失败: ' + err.message);
+        setError('编辑器初始化失败: ' + err.message);
       }
     };
-  }, []);
 
-  const initEditor = (g: any) => {
-    if (!containerRef.current) return;
-    try {
-      const editor = g.init({
-        container: containerRef.current,
-        height: 'calc(100vh - 110px)',
-        storageManager: false,
-        fromElement: false,
-        noticeOnUnload: false,
-        plugins: ['gjs-local-blocks'],
-        pluginsOpts: { 'gjs-local-blocks': {} },
-        styleManager: {
-          sectors: [
-            { name: '尺寸', open: false, buildProps: ['width', 'height', 'max-width', 'padding', 'margin', 'display'] },
-            { name: '背景', open: false, buildProps: ['background-color', 'background-image'] },
-            { name: '文本', open: false, buildProps: ['font-size', 'font-weight', 'color', 'text-align', 'line-height'] },
-            { name: '边框', open: false, buildProps: ['border-width', 'border-color', 'border-radius'] },
-          ]
-        }
-      });
-      editorRef.current = editor;
-      setError(null);
-    } catch (err) {
-      setError('编辑器初始化失败');
-    }
-  };
+    script.onerror = () => {
+      setDebug(d => d + '\n3e. JS 加载失败!');
+      setError('编辑器核心库加载失败，请检查网络');
+    };
+
+    document.head.appendChild(script);
+  }, []);
 
   const fetchPages = async () => {
     try {
@@ -151,19 +169,8 @@ export default function VisualEditorPage() {
     finally { setSaving(false); }
   };
 
-  if (!editorLoaded) {
-    return (
-      <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', background: '#f8f9fa' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div style={{ width: 36, height: 36, border: '3px solid #e5e7eb', borderTopColor: '#2563eb', borderRadius: '50%', margin: '0 auto 12px' }} />
-          <p style={{ color: '#6b7280', margin: 0, fontSize: 14 }}>编辑器加载中...</p>
-        </div>
-      </div>
-    );
-  }
-
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100vh', overflow: 'hidden', fontFamily: 'Arial, sans-serif' }}>
       {/* Toolbar */}
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '8px 16px', background: '#1e293b', color: 'white', flexShrink: 0 }}>
         <span style={{ fontWeight: 600, fontSize: 14 }}>Sunfurns 可视化编辑器</span>
@@ -184,8 +191,15 @@ export default function VisualEditorPage() {
       {error && <div style={{ background: '#fee2e2', color: '#991b1b', padding: '6px 16px', fontSize: 13 }}>⚠️ {error}</div>}
       {loading && <div style={{ background: '#dbeafe', color: '#1e40af', padding: '6px 16px', fontSize: 13 }}>加载中...</div>}
 
+      {/* Debug info */}
+      {debug && (
+        <div style={{ background: '#1e1e2e', color: '#a0f0a0', padding: '4px 12px', fontSize: 11, fontFamily: 'monospace', maxHeight: 80, overflow: 'auto', whiteSpace: 'pre' }}>
+          {debug}
+        </div>
+      )}
+
       {/* Editor */}
-      <div ref={containerRef} style={{ flex: 1 }} />
+      <div ref={containerRef} style={{ flex: 1, background: 'white' }} />
 
       {/* Footer */}
       <div style={{ background: '#f1f5f9', color: '#64748b', fontSize: 11, padding: '3px 16px', flexShrink: 0, borderTop: '1px solid #e2e8f0' }}>
