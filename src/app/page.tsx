@@ -1,6 +1,70 @@
-import Link from "next/link";
+import { getSupabaseAdmin } from '@/lib/supabase';
 
-export default function Home() {
+export const revalidate = 0;
+
+type PageProps = {
+  params: { slug?: string };
+};
+
+export default async function HomePage({ params }: PageProps) {
+  // If slug is provided (e.g. /about), try to load from DB
+  if (params?.slug) {
+    const supabase = getSupabaseAdmin();
+    const { data: page } = await supabase
+      .from('pages')
+      .select('*')
+      .eq('slug', params.slug)
+      .single();
+
+    if (page) {
+      const html = page.gjs_html?.trim();
+      const css = page.gjs_css?.trim();
+      const content = page.content?.trim();
+
+      if (html && html !== '<body></body>') {
+        return (
+          <div dangerouslySetInnerHTML={{
+            __html: `<style>${css || ''}</style>${html}`
+          }} />
+        );
+      } else if (content) {
+        return (
+          <div className="container mx-auto py-12 px-4">
+            <h1 className="text-3xl font-bold mb-6">{page.title || params.slug}</h1>
+            <div dangerouslySetInnerHTML={{ __html: content }} />
+          </div>
+        );
+      }
+    }
+    return (
+      <div className="container mx-auto py-12 px-4">
+        <h1 className="text-3xl font-bold mb-6">页面不存在</h1>
+        <a href="/" className="text-blue-600 hover:underline">返回首页</a>
+      </div>
+    );
+  }
+
+  // Home page - load from DB first, fallback to static content
+  const supabase = getSupabaseAdmin();
+  const { data: homePage } = await supabase
+    .from('pages')
+    .select('*')
+    .eq('slug', 'home')
+    .single();
+
+  const html = homePage?.gjs_html?.trim();
+  const css = homePage?.gjs_css?.trim();
+
+  // If we have GrapesJS content, render it
+  if (html && html !== '<body></body>') {
+    return (
+      <div dangerouslySetInnerHTML={{
+        __html: `<style>${css || ''}</style>${html}`
+      }} />
+    );
+  }
+
+  // Otherwise show default static homepage
   return (
     <div>
       {/* Hero Section */}
@@ -14,12 +78,12 @@ export default function Home() {
               源头工厂直供价，提供OEM/ODM定制服务。您的优质家具B2B合作伙伴。
             </p>
             <div className="flex justify-center gap-4">
-              <Link href="/contact" className="bg-white text-blue-900 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+              <a href="/contact" className="bg-white text-blue-900 px-6 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
                 获取报价
-              </Link>
-              <Link href="/products" className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-900 transition-colors">
+              </a>
+              <a href="/products" className="border-2 border-white text-white px-6 py-3 rounded-lg font-semibold hover:bg-white hover:text-blue-900 transition-colors">
                 浏览产品
-              </Link>
+              </a>
             </div>
           </div>
         </div>
@@ -69,9 +133,9 @@ export default function Home() {
                 <div className="p-6">
                   <h3 className="text-xl font-semibold mb-2">{product.name}</h3>
                   <p className="text-gray-600 mb-4">{product.desc}</p>
-                  <Link href="/products" className="text-blue-900 font-semibold hover:underline">
+                  <a href="/products" className="text-blue-900 font-semibold hover:underline">
                     查看更多 →
-                  </Link>
+                  </a>
                 </div>
               </div>
             ))}
@@ -86,9 +150,9 @@ export default function Home() {
           <p className="text-blue-100 mb-8 max-w-2xl mx-auto">
             立即联系我们，免费咨询和报价。我们将在24小时内回复。
           </p>
-          <Link href="/contact" className="bg-white text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
+          <a href="/contact" className="bg-white text-blue-900 px-8 py-3 rounded-lg font-semibold hover:bg-gray-100 transition-colors">
             立即联系
-          </Link>
+          </a>
         </div>
       </section>
     </div>
