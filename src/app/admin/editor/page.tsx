@@ -198,8 +198,11 @@ export default function VisualEditorPage() {
         </div>
       )}
 
-      {/* Editor */}
-      <div ref={containerRef} style={{ flex: 1, background: 'white' }} />
+      {/* Editor - with visible border so we can see if it rendered */}
+      <div ref={containerRef} style={{ flex: 1, minHeight: 0, position: 'relative', zIndex: 1 }} />
+
+      {/* Test element */}
+      <div id="editor-test" style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(45deg, #f0f0f0 25%, #e0e0e0 25%, #e0e0e0 50%, #f0f0f0 50%, #f0f0f0 75%, #e0e0e0 75%)', backgroundSize: '20px 20px', pointerEvents: 'none' }} />
 
       {/* Footer */}
       <div style={{ background: '#f1f5f9', color: '#64748b', fontSize: 11, padding: '3px 16px', flexShrink: 0, borderTop: '1px solid #e2e8f0' }}>
