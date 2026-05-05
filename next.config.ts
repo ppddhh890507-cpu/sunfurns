@@ -5,7 +5,7 @@ const nextConfig: NextConfig = {
   images: {
     unoptimized: true,
   },
-  output: "standalone",
+  // Removed output: "standalone" - let @netlify/plugin-nextjs handle SSR via its own serverless handler
 };
 
 export default nextConfig;
