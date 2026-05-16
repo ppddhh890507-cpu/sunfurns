@@ -1,19 +1,28 @@
-import { getSupabaseAdmin } from '@/lib/supabase';
+import { extractBodyContent, isEmptyCmsHtml } from '@/lib/cms-html';
+import { tryGetSupabaseAdmin } from '@/lib/supabase';
 
 export const revalidate = 0;
 
 export default async function ContactPage() {
-  const supabase = getSupabaseAdmin();
-  const { data: pagesData } = await supabase.from('pages').select('*');
-  const contactPage = pagesData?.find(p => p.slug === 'contact');
+  const supabase = tryGetSupabaseAdmin();
+  let contactPage: { gjs_html?: string | null; gjs_css?: string | null } | undefined;
+
+  if (supabase) {
+    try {
+      const { data, error } = await supabase.from('pages').select('*');
+      if (!error && data) {
+        contactPage = data.find((p) => p.slug === 'contact');
+      }
+    } catch (err) {
+      console.error('Contact page: Supabase request failed', err);
+    }
+  }
+
   const gjsHtml = contactPage?.gjs_html?.trim();
   const gjsCss = contactPage?.gjs_css?.trim();
 
-  // 如果数据库有 gjs_html 内容（GrapesJS 编辑器保存过），渲染它
-  if (gjsHtml && gjsHtml !== '<body></body>' && gjsHtml !== '<body><body></body></body>') {
-    // 提取 body 内部内容
-    const bodyMatch = gjsHtml.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
-    const bodyContent = bodyMatch ? bodyMatch[1] : gjsHtml;
+  if (gjsHtml && !isEmptyCmsHtml(gjsHtml)) {
+    const bodyContent = extractBodyContent(gjsHtml);
     return (
       <div
         className="py-16"

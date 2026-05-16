@@ -78,10 +78,15 @@ export async function initDatabase() {
   }
 }
 
-// Helper to get the admin client
+// Helper to get the admin client (throws for write APIs that require it)
 export function getSupabaseAdmin() {
   if (!supabaseAdmin) {
     throw new Error('SUPABASE_SERVICE_ROLE_KEY not configured');
   }
+  return supabaseAdmin;
+}
+
+/** Safe read-only access for public pages; returns null when env is missing. */
+export function tryGetSupabaseAdmin() {
   return supabaseAdmin;
 }

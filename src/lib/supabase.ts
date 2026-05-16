@@ -1,4 +1,3 @@
-import { getSupabaseAdmin } from './db';
+import { getSupabaseAdmin, tryGetSupabaseAdmin } from './db';
 
-export const supabase = getSupabaseAdmin();
-export { getSupabaseAdmin };
+export { getSupabaseAdmin, tryGetSupabaseAdmin };
