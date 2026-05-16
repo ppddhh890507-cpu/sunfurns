@@ -1,36 +1,12 @@
-import { extractBodyContent, isEmptyCmsHtml } from '@/lib/cms-html';
-import { tryGetSupabaseAdmin } from '@/lib/supabase';
+import CmsPageView from '@/components/CmsPageView';
+import { loadCmsPageBySlug } from '@/lib/load-cms-page';
 
 export const revalidate = 0;
 
 export default async function ContactPage() {
-  const supabase = tryGetSupabaseAdmin();
-  let contactPage: { gjs_html?: string | null; gjs_css?: string | null } | undefined;
-
-  if (supabase) {
-    try {
-      const { data, error } = await supabase.from('pages').select('*');
-      if (!error && data) {
-        contactPage = data.find((p) => p.slug === 'contact');
-      }
-    } catch (err) {
-      console.error('Contact page: Supabase request failed', err);
-    }
-  }
-
-  const gjsHtml = contactPage?.gjs_html?.trim();
-  const gjsCss = contactPage?.gjs_css?.trim();
-
-  if (gjsHtml && !isEmptyCmsHtml(gjsHtml)) {
-    const bodyContent = extractBodyContent(gjsHtml);
-    return (
-      <div
-        className="py-16"
-        dangerouslySetInnerHTML={{
-          __html: `<style>${gjsCss || ''}</style>${bodyContent}`
-        }}
-      />
-    );
+  const cms = await loadCmsPageBySlug('contact');
+  if (cms) {
+    return <CmsPageView html={cms.html} css={cms.css} />;
   }
 
   // === 无数据库内容时使用静态联系表单（回退） ===

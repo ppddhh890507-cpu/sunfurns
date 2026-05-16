@@ -1,26 +1,31 @@
+﻿import CmsPageView from '@/components/CmsPageView';
+import { loadCmsPageBySlug } from '@/lib/load-cms-page';
+
 export const metadata = {
-  title: "产品中心 - Sunfurns | 专业沙发制造商",
-  description: "浏览我们的沙发和家具系列。布艺沙发、真皮沙发、模块沙发等。提供OEM/ODM定制服务。",
+  title: '产品中心 - Sunfurns | 专业沙发制造商',
+  description: '浏览我们的沙发和家具系列。布艺沙发、真皮沙发、模块沙发等。提供OEM/ODM定制服务。',
 };
 
-export default function Products() {
+export const revalidate = 0;
+
+function ProductsFallback() {
   const products = [
     {
-      category: "布艺沙发",
-      items: ["现代布艺沙发", "经典布艺沙发", "L型布艺沙发", "布艺功能沙发"]
+      category: '布艺沙发',
+      items: ['现代布艺沙发', '经典布艺沙发', 'L型布艺沙发', '布艺功能沙发'],
     },
     {
-      category: "真皮沙发",
-      items: ["意式真皮沙发", "现代真皮沙发", " executive 真皮沙发", "真皮功能沙发"]
+      category: '真皮沙发',
+      items: ['意式真皮沙发', '现代真皮沙发', ' executive 真皮沙发', '真皮功能沙发'],
     },
     {
-      category: "模块沙发",
-      items: ["定制模块沙发", "转角沙发", "可变沙发床"]
+      category: '模块沙发',
+      items: ['定制模块沙发', '转角沙发', '可变沙发床'],
     },
     {
-      category: "办公家具",
-      items: ["Executive 椅子", "办公沙发", "接待沙发"]
-    }
+      category: '办公家具',
+      items: ['Executive 椅子', '办公沙发', '接待沙发'],
+    },
   ];
 
   return (
@@ -52,7 +57,7 @@ export default function Products() {
           <p className="text-gray-600 mb-6">
             我们提供OEM/ODM服务。发送您的规格要求，我们将为您提供定制报价。
           </p>
-          <a href="/contact" className="btn-primary inline-block">
+          <a href="/contact/" className="btn-primary inline-block">
             获取定制报价
           </a>
         </div>
@@ -60,3 +65,12 @@ export default function Products() {
     </div>
   );
 }
+
+export default async function ProductsPage() {
+  const cms = await loadCmsPageBySlug('products');
+  if (cms) {
+    return <CmsPageView html={cms.html} css={cms.css} />;
+  }
+  return <ProductsFallback />;
+}
+

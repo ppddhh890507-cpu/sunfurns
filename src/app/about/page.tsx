@@ -1,9 +1,14 @@
+﻿import CmsPageView from '@/components/CmsPageView';
+import { loadCmsPageBySlug } from '@/lib/load-cms-page';
+
 export const metadata = {
-  title: "关于我们 - Sunfurns | 专业沙发制造商",
-  description: "了解Sunfurns，超过10年B2B家具解决方案经验的专业沙发制造商。",
+  title: '关于我们 - Sunfurns | 专业沙发制造商',
+  description: '了解Sunfurns，超过10年B2B家具解决方案经验的专业沙发制造商。',
 };
 
-export default function About() {
+export const revalidate = 0;
+
+function AboutFallback() {
   return (
     <div className="py-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -32,10 +37,10 @@ export default function About() {
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 mb-16">
           {[
-            { num: "10+", label: "年行业经验" },
-            { num: "10,000+", label: "平方米工厂" },
-            { num: "50+", label: "服务国家" },
-            { num: "500+", label: "满意客户" },
+            { num: '10+', label: '年行业经验' },
+            { num: '10,000+', label: '平方米工厂' },
+            { num: '50+', label: '服务国家' },
+            { num: '500+', label: '满意客户' },
           ].map((stat, i) => (
             <div key={i} className="text-center">
               <div className="text-4xl font-bold text-blue-900 mb-2">{stat.num}</div>
@@ -48,12 +53,12 @@ export default function About() {
           <h2 className="text-2xl font-semibold mb-6 text-center">我们的优势</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { title: "质量保证", desc: "每个生产阶段都有严格的质量控制" },
-              { title: "价格优势", desc: "工厂直供价格" },
-              { title: "灵活起订量", desc: "最低10套起订" },
-              { title: "快速生产", desc: "15-30天交货期" },
-              { title: "全球发货", desc: "支持FOB、CIF、DDU" },
-              { title: "售后服务", desc: "1年质保" },
+              { title: '质量保证', desc: '每个生产阶段都有严格的质量控制' },
+              { title: '价格优势', desc: '工厂直供价格' },
+              { title: '灵活起订量', desc: '最低10套起订' },
+              { title: '快速生产', desc: '15-30天交货期' },
+              { title: '全球发货', desc: '支持FOB、CIF、DDU' },
+              { title: '售后服务', desc: '1年质保' },
             ].map((adv, i) => (
               <div key={i} className="bg-white rounded-lg p-4 shadow-sm">
                 <h3 className="font-semibold mb-2">{adv.title}</h3>
@@ -66,3 +71,12 @@ export default function About() {
     </div>
   );
 }
+
+export default async function AboutPage() {
+  const cms = await loadCmsPageBySlug('about');
+  if (cms) {
+    return <CmsPageView html={cms.html} css={cms.css} />;
+  }
+  return <AboutFallback />;
+}
+
