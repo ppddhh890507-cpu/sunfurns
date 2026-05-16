@@ -1,4 +1,5 @@
-﻿import ImageSlot from '@/components/ui/ImageSlot';
+﻿import ContactInfoCard from '@/components/contact/ContactInfoCard';
+import ImageSlot from '@/components/ui/ImageSlot';
 import Link from 'next/link';
 
 const companySlots = [
@@ -22,36 +23,38 @@ const productSlots = [
 export default function HomePageContent() {
   return (
     <div className="bg-neutral-50">
-      {/* Hero */}
       <section className="border-b border-neutral-200 bg-white">
-        <div className="mx-auto max-w-7xl px-4 py-16 sm:px-6 sm:py-20 lg:px-8">
-          <p className="text-sm font-medium uppercase tracking-widest text-[#f47321]">
-            B2B 家具出口 · 工厂直供
-          </p>
-          <h1 className="mt-4 max-w-3xl text-4xl font-bold tracking-tight text-neutral-900 sm:text-5xl">
-            专业沙发与家具制造商
-          </h1>
-          <p className="mt-4 max-w-2xl text-lg text-neutral-600">
-            简洁、可靠的跨境供货伙伴。支持 OEM/ODM，灵活起订，全球配送。
-          </p>
-          <div className="mt-8 flex flex-wrap gap-4">
-            <Link
-              href="/products/"
-              className="inline-flex items-center rounded-md bg-neutral-900 px-6 py-3 text-sm font-semibold text-white hover:bg-neutral-800"
-            >
-              浏览产品
-            </Link>
-            <Link
-              href="/contact/"
-              className="inline-flex items-center rounded-md border border-neutral-300 bg-white px-6 py-3 text-sm font-semibold text-neutral-800 hover:bg-neutral-50"
-            >
-              获取报价
-            </Link>
+        <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 sm:py-16 lg:grid-cols-2 lg:items-start lg:gap-12 lg:px-8 lg:py-20">
+          <div>
+            <p className="text-sm font-medium uppercase tracking-widest text-[#f47321]">
+              B2B 家具出口 · 工厂直供
+            </p>
+            <h1 className="mt-4 text-4xl font-bold tracking-tight text-neutral-900 sm:text-5xl">
+              专业沙发与家具制造商
+            </h1>
+            <p className="mt-4 text-lg text-neutral-600">
+              简洁、可靠的跨境供货伙伴。支持 OEM/ODM，灵活起订，全球配送。
+            </p>
+            <div className="mt-8 flex flex-wrap gap-4">
+              <Link
+                href="/products/"
+                className="inline-flex items-center rounded-md bg-neutral-900 px-6 py-3 text-sm font-semibold text-white hover:bg-neutral-800"
+              >
+                浏览产品
+              </Link>
+              <Link
+                href="/contact/"
+                className="inline-flex items-center rounded-md border border-neutral-300 bg-white px-6 py-3 text-sm font-semibold text-neutral-800 hover:bg-neutral-50"
+              >
+                获取报价
+              </Link>
+            </div>
           </div>
+
+          <ContactInfoCard compact className="lg:sticky lg:top-24" />
         </div>
       </section>
 
-      {/* Company — 6 slots */}
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
         <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
           <div>
@@ -66,7 +69,6 @@ export default function HomePageContent() {
         </div>
       </section>
 
-      {/* Products — 6 slots */}
       <section className="border-t border-neutral-200 bg-white">
         <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
           <div className="mb-8 flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
@@ -89,7 +91,6 @@ export default function HomePageContent() {
         </div>
       </section>
 
-      {/* CTA */}
       <section className="border-t border-neutral-200 bg-neutral-900">
         <div className="mx-auto max-w-7xl px-4 py-12 text-center sm:px-6 lg:px-8">
           <h2 className="text-2xl font-bold text-white">准备开始合作？</h2>
