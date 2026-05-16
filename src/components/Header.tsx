@@ -6,8 +6,9 @@ import { useState } from 'react';
 const nav = [
   { href: '/', label: '首页' },
   { href: '/products/', label: '产品中心' },
-  { href: '/contact/', label: '联系我们' },
 ];
+
+const quoteHref = 'mailto:info@sunfurns.com?subject=SUNFURNS%20%E8%AF%A2%E4%BB%B7';
 
 export default function Header() {
   const [open, setOpen] = useState(false);
@@ -44,12 +45,12 @@ export default function Header() {
                 {item.label}
               </Link>
             ))}
-            <Link
-              href="/contact/"
+            <a
+              href={quoteHref}
               className="ml-2 rounded-md bg-[#f47321] px-5 py-2.5 text-sm font-semibold text-white hover:bg-[#e55f10]"
             >
               获取报价
-            </Link>
+            </a>
           </div>
 
           <button
@@ -80,13 +81,13 @@ export default function Header() {
                 {item.label}
               </Link>
             ))}
-            <Link
-              href="/contact/"
+            <a
+              href={quoteHref}
               className="mt-2 block rounded-md bg-[#f47321] px-3 py-2.5 text-center text-sm font-semibold text-white"
               onClick={() => setOpen(false)}
             >
               获取报价
-            </Link>
+            </a>
           </div>
         )}
       </nav>

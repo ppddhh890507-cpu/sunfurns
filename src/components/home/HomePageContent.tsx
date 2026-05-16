@@ -42,12 +42,12 @@ export default function HomePageContent() {
               >
                 浏览产品
               </Link>
-              <Link
-                href="/contact/"
+              <a
+                href="mailto:info@sunfurns.com?subject=SUNFURNS%20%E8%AF%A2%E4%BB%B7"
                 className="inline-flex items-center rounded-md border border-neutral-300 bg-white px-6 py-3 text-sm font-semibold text-neutral-800 hover:bg-neutral-50"
               >
                 获取报价
-              </Link>
+              </a>
             </div>
           </div>
 

@@ -62,8 +62,8 @@ function FaqFallback() {
         <div className="mt-12 text-center bg-blue-50 rounded-lg p-8">
           <h3 className="text-xl font-semibold mb-4">还有问题吗？</h3>
           <p className="text-gray-600 mb-6">请直接联系我们，我们将在24小时内回复。</p>
-          <a href="/contact/" className="btn-primary inline-block">
-            联系我们
+          <a href="mailto:info@sunfurns.com" className="btn-primary inline-block">
+            发送邮件
           </a>
         </div>
       </div>
