@@ -91,20 +91,6 @@ export default function HomePageContent() {
         </div>
       </section>
 
-      <section className="border-t border-neutral-200 bg-neutral-900">
-        <div className="mx-auto max-w-7xl px-4 py-12 text-center sm:px-6 lg:px-8">
-          <h2 className="text-2xl font-bold text-white">准备开始合作？</h2>
-          <p className="mx-auto mt-2 max-w-xl text-neutral-400">
-            发送询价需求，我们将在 24 小时内回复报价与交期方案。
-          </p>
-          <Link
-            href="/contact/"
-            className="mt-6 inline-flex rounded-md bg-[#f47321] px-8 py-3 text-sm font-semibold text-white hover:bg-[#e55f10]"
-          >
-            联系我们
-          </Link>
-        </div>
-      </section>
     </div>
   );
 }
